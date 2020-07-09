@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:polka_wallet/common/components/backgroundWrapper.dart';
 import 'package:polka_wallet/common/components/topTaps.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
-import 'package:polka_wallet/page/governance/treasury/spendProposals.dart';
+import 'package:polka_wallet/page/governance/treasury/moneyProposals.dart';
 import 'package:polka_wallet/page/governance/treasury/tips.dart';
-import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -21,14 +20,6 @@ class TreasuryPage extends StatefulWidget {
 
 class _TreasuryPageState extends State<TreasuryPage> {
   int _tab = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      webApi.gov.fetchCouncilInfo();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +62,7 @@ class _TreasuryPageState extends State<TreasuryPage> {
                 ),
                 Expanded(
                   child: _tab == 0
-                      ? SpendProposals(widget.store)
+                      ? MoneyProposals(widget.store)
                       : MoneyTips(widget.store),
                 ),
               ],
