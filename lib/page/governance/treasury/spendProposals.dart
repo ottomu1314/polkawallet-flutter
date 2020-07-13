@@ -10,7 +10,6 @@ import 'package:polka_wallet/common/components/roundedCard.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/governance/treasury/spendProposalPage.dart';
 import 'package:polka_wallet/page/governance/treasury/submitProposalPage.dart';
-import 'package:polka_wallet/page/governance/treasury/submitTipPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/gov/types/treasuryOverviewData.dart';
@@ -60,22 +59,13 @@ class _ProposalsState extends State<SpendProposals> {
     final Map dic = I18n.of(context).gov;
     return Observer(
       builder: (BuildContext context) {
-        final int decimals = widget.store.settings.networkState.tokenDecimals ??
-            kusama_token_decimals;
-        final String symbol =
-            widget.store.settings.networkState.tokenSymbol ?? '';
+        final int decimals = widget.store.settings.networkState.tokenDecimals;
+        final String symbol = widget.store.settings.networkState.tokenSymbol;
+        print(widget.store.gov.treasuryOverview.proposalCount);
         String balance = Fmt.balance(
           widget.store.gov.treasuryOverview.balance,
           decimals: decimals,
         );
-        bool isCouncil = false;
-        if (widget.store.gov.council.members != null) {
-          widget.store.gov.council.members.forEach((e) {
-            if (widget.store.account.currentAddress == e[0]) {
-              isCouncil = true;
-            }
-          });
-        }
         return RefreshIndicator(
           onRefresh: _fetchData,
           key: _refreshKey,
@@ -86,7 +76,6 @@ class _ProposalsState extends State<SpendProposals> {
                 balance: balance,
                 spendPeriod: _getSpendPeriod(),
                 overview: widget.store.gov.treasuryOverview,
-                isCouncil: isCouncil,
               ),
               Container(
                 color: Theme.of(context).cardColor,
@@ -145,7 +134,6 @@ class _ProposalsState extends State<SpendProposals> {
                                         .map((e) {
                                       Map accInfo = widget.store.account
                                           .accountIndexMap[e.proposal.proposer];
-                                      e.isApproval = true;
                                       return _ProposalItem(
                                         symbol: symbol,
                                         accInfo: accInfo,
@@ -179,14 +167,12 @@ class _OverviewCard extends StatelessWidget {
     this.balance,
     this.spendPeriod,
     this.overview,
-    this.isCouncil,
   });
 
   final String symbol;
   final String balance;
   final int spendPeriod;
   final TreasuryOverviewData overview;
-  final bool isCouncil;
 
   @override
   Widget build(BuildContext context) {
@@ -235,9 +221,10 @@ class _OverviewCard extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: RoundedButton(
-                  text: dic['treasury.submit'],
+                  text: 'submit proposal',
                   icon: Icon(Icons.add, color: Theme.of(context).cardColor),
                   onPressed: () {
+                    print('go to submit');
                     Navigator.of(context).pushNamed(SubmitProposalPage.route);
                   },
                 ),
@@ -247,10 +234,7 @@ class _OverviewCard extends StatelessWidget {
                 text: dic['treasury.tip'],
                 icon: Icon(Icons.add, color: Theme.of(context).cardColor),
                 onPressed: () {
-                  Navigator.of(context).pushNamed(
-                    SubmitTipPage.route,
-                    arguments: isCouncil,
-                  );
+                  print('go to tip');
                 },
               ),
             ],
@@ -272,7 +256,7 @@ class _ProposalItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: AddressIcon(proposal.proposal.proposer),
-      title: Fmt.accountDisplayName(proposal.proposal.proposer, accInfo),
+      title: Text(Fmt.accountDisplayName(proposal.proposal.proposer, accInfo)),
       subtitle:
           Text('${Fmt.balance(proposal.proposal.value.toString())} $symbol'),
       trailing: Text(

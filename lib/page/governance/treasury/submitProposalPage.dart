@@ -6,7 +6,7 @@ import 'package:polka_wallet/common/components/addressFormItem.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/regInputFormatter.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
-import 'package:polka_wallet/page/profile/contacts/contactListPage.dart';
+import 'package:polka_wallet/page/staking/actions/accountSelectPage.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/utils/format.dart';
@@ -34,7 +34,6 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
       var dic = I18n.of(context).gov;
       int decimals = widget.store.settings.networkState.tokenDecimals;
       String amt = _amountCtrl.text.trim();
-      String address = Fmt.addressOfAccount(_beneficiary, widget.store);
       var args = {
         "title": dic['treasury.submit'],
         "txInfo": {
@@ -43,13 +42,13 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
         },
         "detail": jsonEncode({
           "value": amt,
-          "beneficiary": address,
+          "beneficiary": _beneficiary.address,
         }),
         "params": [
           // "value"
           Fmt.tokenInt(amt, decimals: decimals).toString(),
           // "beneficiary"
-          address,
+          _beneficiary.address,
         ],
         'onFinish': (BuildContext txPageContext, Map res) {
           Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
@@ -67,12 +66,6 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
         _beneficiary = widget.store.account.currentAccount;
       });
     });
-  }
-
-  @override
-  void dispose() {
-    _amountCtrl.dispose();
-    super.dispose();
   }
 
   @override
@@ -96,8 +89,8 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
                           _beneficiary,
                           label: dic['treasury.beneficiary'],
                           onTap: () async {
-                            final acc = await Navigator.of(context)
-                                .pushNamed(ContactListPage.route);
+                            AccountData acc = await Navigator.of(context)
+                                .pushNamed(AccountSelectPage.route);
                             if (acc != null) {
                               setState(() {
                                 _beneficiary = acc;

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/infoItem.dart';
 import 'package:polka_wallet/common/components/outlinedButtonSmall.dart';
-import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/governance/council/candidateDetailPage.dart';
 import 'package:polka_wallet/page/governance/council/councilVotePage.dart';
@@ -36,8 +35,9 @@ class _CouncilState extends State<Council> {
     if (store.settings.loading) {
       return;
     }
-    await webApi.gov.fetchCouncilVotes();
+    webApi.gov.fetchCouncilVotes();
     webApi.gov.fetchUserCouncilVote();
+    await webApi.gov.fetchCouncilInfo();
   }
 
   Future<void> _submitCancelVotes() async {
@@ -95,9 +95,8 @@ class _CouncilState extends State<Council> {
   }
 
   Widget _buildTopCard() {
-    final int decimals =
-        store.settings.networkState.tokenDecimals ?? kusama_token_decimals;
-    final String symbol = store.settings.networkState.tokenSymbol ?? '';
+    final int decimals = store.settings.networkState.tokenDecimals;
+    final String symbol = store.settings.networkState.tokenSymbol;
     final Map dic = I18n.of(context).gov;
 
     Map userVotes = store.gov.userCouncilVotes;
@@ -321,7 +320,20 @@ class CandidateItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: AddressIcon(balance[0], size: iconSize),
-      title: Fmt.accountDisplayName(balance[0], accInfo),
+      title: Row(
+        children: <Widget>[
+          accInfo != null && accInfo['identity']['judgements'].length > 0
+              ? Container(
+                  width: 14,
+                  margin: EdgeInsets.only(right: 4),
+                  child: Image.asset('assets/images/assets/success.png'),
+                )
+              : Container(),
+          Expanded(
+            child: Text(Fmt.accountDisplayName(balance[0], accInfo)),
+          )
+        ],
+      ),
       subtitle: balance.length == 1
           ? null
           : Text(
