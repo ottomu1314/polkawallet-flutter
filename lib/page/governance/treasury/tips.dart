@@ -25,6 +25,9 @@ class _ProposalsState extends State<MoneyTips> {
 
   Future<void> _fetchData() async {
     await webApi.gov.fetchTreasuryTips();
+    final int bestNumber =
+        await webApi.evalJavascript('api.derive.chain.bestNumber()');
+    widget.store.gov.setBestNumber(bestNumber);
   }
 
   @override
@@ -58,7 +61,7 @@ class _ProposalsState extends State<MoneyTips> {
                       padding: EdgeInsets.only(top: 16, bottom: 16),
                       child: ListTile(
                         leading: AddressIcon(tip.who),
-                        title: Text(Fmt.accountDisplayName(tip.who, accInfo)),
+                        title: Fmt.accountDisplayName(tip.who, accInfo),
                         subtitle: Text(tip.reason),
                         trailing: Column(
                           children: <Widget>[

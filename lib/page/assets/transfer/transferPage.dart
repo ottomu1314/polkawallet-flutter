@@ -267,10 +267,8 @@ class _TransferPageState extends State<TransferPage> {
                                             AccountData acc = to as AccountData;
                                             setState(() {
                                               _addressCtrl.text =
-                                                  acc.encoded == null
-                                                      ? acc.address
-                                                      : pubKeyAddressMap[
-                                                          acc.pubKey];
+                                                  Fmt.addressOfAccount(
+                                                      acc, store);
                                             });
                                           }
                                         },

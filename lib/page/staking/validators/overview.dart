@@ -227,8 +227,7 @@ class _StakingOverviewPageState extends State<StakingOverviewPage>
               leading: AddressIcon(id),
               title: Text(
                   '${meStaked != null ? Fmt.token(meStaked) : '~'} $symbol'),
-              subtitle:
-                  Text(Fmt.accountDisplayName(validator.accountId, accInfo)),
+              subtitle: Fmt.accountDisplayName(validator.accountId, accInfo),
               trailing: Container(
                 width: 120,
                 height: 48,

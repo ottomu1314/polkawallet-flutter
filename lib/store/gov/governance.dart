@@ -32,9 +32,6 @@ abstract class _GovernanceStore with Store {
   CouncilInfoData council = CouncilInfoData();
 
   @observable
-  List<CouncilMotionData> councilMotions = [];
-
-  @observable
   Map<String, Map<String, dynamic>> councilVotes;
 
   @observable
@@ -100,13 +97,6 @@ abstract class _GovernanceStore with Store {
   void setTreasuryTips(List data) {
     treasuryTips = data
         .map((e) => TreasuryTipData.fromJson(Map<String, dynamic>.of(e)))
-        .toList();
-  }
-
-  @action
-  void setCouncilMotions(List data) {
-    councilMotions = data
-        .map((e) => CouncilMotionData.fromJson(Map<String, dynamic>.of(e)))
         .toList();
   }
 }

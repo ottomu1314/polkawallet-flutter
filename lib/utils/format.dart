@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
+import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/staking/types/validatorData.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -231,7 +232,7 @@ class Fmt {
       List<ValidatorData> ls, String filter, Map accIndexMap) {
     ls.retainWhere((i) {
       Map accInfo = accIndexMap[i.accountId];
-      return Fmt.accountDisplayName(i.accountId, accInfo)
+      return Fmt.accountDisplayNameString(i.accountId, accInfo)
           .toLowerCase()
           .contains(filter.trim().toLowerCase());
     });
@@ -318,7 +319,7 @@ class Fmt {
     return '${acc.name ?? ''}${(acc.observation ?? false) ? ' (${I18n.of(context).account['observe']})' : ''}';
   }
 
-  static String accountDisplayName(String address, Map accInfo) {
+  static String accountDisplayNameString(String address, Map accInfo) {
     String display = Fmt.address(address, pad: 6);
     if (accInfo != null && accInfo['identity']['display'] != null) {
       display = accInfo['identity']['display'];
@@ -328,5 +329,29 @@ class Fmt {
       display = display.toUpperCase();
     }
     return display;
+  }
+
+  static Widget accountDisplayName(String address, Map accInfo) {
+    return Row(
+      children: <Widget>[
+        accInfo != null && accInfo['identity']['judgements'].length > 0
+            ? Container(
+                width: 14,
+                margin: EdgeInsets.only(right: 4),
+                child: Image.asset('assets/images/assets/success.png'),
+              )
+            : Container(),
+        Expanded(
+          child: Text(accountDisplayNameString(address, accInfo)),
+        )
+      ],
+    );
+  }
+
+  static String addressOfAccount(AccountData acc, AppStore store) {
+    return store.account.pubKeyAddressMap[store.settings.endpoint.ss58]
+            [acc.pubKey] ??
+        acc.address ??
+        '';
   }
 }

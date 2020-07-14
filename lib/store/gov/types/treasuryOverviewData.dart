@@ -23,6 +23,7 @@ class SpendProposalData extends _SpendProposalData {
 
 abstract class _SpendProposalData {
   int id;
+  bool isApproval;
   SpendProposalDetailData proposal;
 }
 

@@ -40,6 +40,7 @@ import 'package:polka_wallet/page/governance/democracy/democracyPage.dart';
 import 'package:polka_wallet/page/governance/democracy/referendumVotePage.dart';
 import 'package:polka_wallet/page/governance/treasury/spendProposalPage.dart';
 import 'package:polka_wallet/page/governance/treasury/submitProposalPage.dart';
+import 'package:polka_wallet/page/governance/treasury/submitTipPage.dart';
 import 'package:polka_wallet/page/governance/treasury/tipDetailPage.dart';
 import 'package:polka_wallet/page/governance/treasury/treasuryPage.dart';
 import 'package:polka_wallet/page/networkSelectPage.dart';
@@ -263,6 +264,7 @@ class _WalletAppState extends State<WalletApp> {
         SpendProposalPage.route: (_) => SpendProposalPage(_appStore),
         TipDetailPage.route: (_) => TipDetailPage(_appStore),
         SubmitProposalPage.route: (_) => SubmitProposalPage(_appStore),
+        SubmitTipPage.route: (_) => SubmitTipPage(_appStore),
         CandidateDetailPage.route: (_) => CandidateDetailPage(_appStore),
         CouncilVotePage.route: (_) => CouncilVotePage(_appStore),
         CandidateListPage.route: (_) => CandidateListPage(_appStore),

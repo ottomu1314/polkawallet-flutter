@@ -1,15 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:polka_wallet/common/components/BorderedTitle.dart';
-import 'package:polka_wallet/common/components/addressFormItem.dart';
+import 'package:polka_wallet/common/components/JumpToBrowserLink.dart';
 import 'package:polka_wallet/common/components/addressIcon.dart';
 import 'package:polka_wallet/common/components/infoItem.dart';
+import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/components/roundedCard.dart';
+import 'package:polka_wallet/page/account/txConfirmPage.dart';
+import 'package:polka_wallet/service/substrateApi/api.dart';
+import 'package:polka_wallet/service/substrateApi/types/genExternalLinksParams.dart';
 import 'package:polka_wallet/store/account/types/accountData.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/store/gov/types/treasuryOverviewData.dart';
-import 'package:polka_wallet/store/gov/types/treasuryTipData.dart';
 import 'package:polka_wallet/utils/format.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -25,6 +28,25 @@ class SpendProposalPage extends StatefulWidget {
 }
 
 class _SpendProposalPageState extends State<SpendProposalPage> {
+  Future<void> _onResolve(bool approve) async {
+    var dic = I18n.of(context).gov;
+    final SpendProposalData proposal =
+        ModalRoute.of(context).settings.arguments;
+    var args = {
+      "title": approve ? dic['treasury.approve'] : dic['treasury.reject'],
+      "txInfo": {
+        "module": 'treasury',
+        "call": approve ? 'approveProposal' : 'rejectProposal',
+      },
+      "detail": jsonEncode({"id": proposal.id}),
+      "params": [proposal.id],
+      'onFinish': (BuildContext txPageContext, Map res) {
+        Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
+      }
+    };
+    Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -41,6 +63,13 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
         widget.store.account.accountIndexMap[proposer.address];
     final Map accInfoBeneficiary =
         widget.store.account.accountIndexMap[beneficiary.address];
+    bool isCouncil = false;
+    widget.store.gov.council.members.forEach((e) {
+      if (widget.store.account.currentAddress == e[0]) {
+        isCouncil = true;
+      }
+    });
+    bool isApproval = proposal.isApproval ?? false;
     return Scaffold(
       appBar: AppBar(
         title: Text('${dic['treasury.proposal']} #${proposal.id}'),
@@ -79,16 +108,98 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
                   ),
                   ListTile(
                     leading: AddressIcon(proposal.proposal.proposer),
-                    title: Text(Fmt.accountDisplayName(
-                        proposal.proposal.proposer, accInfoProposer)),
+                    title: Fmt.accountDisplayName(
+                        proposal.proposal.proposer, accInfoProposer),
                     subtitle: Text(dic['treasury.proposer']),
                   ),
                   ListTile(
                     leading: AddressIcon(proposal.proposal.beneficiary),
-                    title: Text(Fmt.accountDisplayName(
-                        proposal.proposal.beneficiary, accInfoBeneficiary)),
+                    title: Fmt.accountDisplayName(
+                        proposal.proposal.beneficiary, accInfoBeneficiary),
                     subtitle: Text(dic['treasury.beneficiary']),
                   ),
+                  FutureBuilder(
+                    future: webApi.getExternalLinks(
+                        GenExternalLinksParams.fromJson({
+                      'data': proposal.id.toString(),
+                      'type': 'treasury'
+                    })),
+                    builder: (_, AsyncSnapshot<List> snapshot) {
+                      if (snapshot.hasData) {
+                        final List links = snapshot.data;
+                        return Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(top: 16),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  JumpToBrowserLink(
+                                    links[0]['link'],
+                                    text: links[0]['name'],
+                                  ),
+                                  JumpToBrowserLink(
+                                    links[1]['link'],
+                                    text: links[1]['name'],
+                                  )
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  JumpToBrowserLink(
+                                    links[2]['link'],
+                                    text: links[2]['name'],
+                                  ),
+                                  JumpToBrowserLink(
+                                    links[3]['link'],
+                                    text: links[3]['name'],
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        );
+                      }
+                      return Container();
+                    },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 16, right: 16),
+                    child: Divider(),
+                  ),
+                  !isApproval
+                      ? Container()
+                      : Padding(
+                          padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: RoundedButton(
+                                  color: Colors.orange,
+                                  text: dic['treasury.reject'],
+                                  onPressed: isCouncil
+                                      ? () => _onResolve(false)
+                                      : null,
+                                ),
+                              ),
+                              Container(width: 16),
+                              Expanded(
+                                child: RoundedButton(
+                                  color: Colors.orange,
+                                  text: dic['treasury.approve'],
+                                  onPressed:
+                                      isCouncil ? () => _onResolve(true) : null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                 ],
               ),
             ),

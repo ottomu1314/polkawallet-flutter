@@ -34,6 +34,7 @@ Map<String, dynamic> _$TreasuryOverviewDataToJson(
 SpendProposalData _$SpendProposalDataFromJson(Map<String, dynamic> json) {
   return SpendProposalData()
     ..id = json['id'] as int
+    ..isApproval = json['isApproval'] as bool
     ..proposal = json['proposal'] == null
         ? null
         : SpendProposalDetailData.fromJson(
@@ -43,6 +44,7 @@ SpendProposalData _$SpendProposalDataFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$SpendProposalDataToJson(SpendProposalData instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'isApproval': instance.isApproval,
       'proposal': instance.proposal,
     };
 

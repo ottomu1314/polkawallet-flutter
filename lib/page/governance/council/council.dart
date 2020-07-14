@@ -320,20 +320,7 @@ class CandidateItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: AddressIcon(balance[0], size: iconSize),
-      title: Row(
-        children: <Widget>[
-          accInfo != null && accInfo['identity']['judgements'].length > 0
-              ? Container(
-                  width: 14,
-                  margin: EdgeInsets.only(right: 4),
-                  child: Image.asset('assets/images/assets/success.png'),
-                )
-              : Container(),
-          Expanded(
-            child: Text(Fmt.accountDisplayName(balance[0], accInfo)),
-          )
-        ],
-      ),
+      title: Fmt.accountDisplayName(balance[0], accInfo),
       subtitle: balance.length == 1
           ? null
           : Text(
