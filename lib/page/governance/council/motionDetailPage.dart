@@ -100,11 +100,27 @@ class ProposalArgsList extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Widget> items = [];
     proposal.meta.args.asMap().forEach((k, v) {
-      items.add(ProposalArgsItem(
-        label: Text('${v.name}: ${v.type}'),
-        content: Text(
-          proposal.args[k].toString(),
-          style: Theme.of(context).textTheme.headline4,
+      items.add(Container(
+        margin: EdgeInsets.fromLTRB(8, 4, 4, 4),
+        padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+        decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).dividerColor),
+            borderRadius: BorderRadius.all(Radius.circular(4))),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('${v.name}: ${v.type}'),
+                  Text(
+                    proposal.args[k].toString(),
+                    style: Theme.of(context).textTheme.headline4,
+                  )
+                ],
+              ),
+            )
+          ],
         ),
       ));
     });
@@ -116,34 +132,6 @@ class ProposalArgsList extends StatelessWidget {
                   BorderSide(color: Theme.of(context).dividerColor, width: 3))),
       child: Column(
         children: items,
-      ),
-    );
-  }
-}
-
-class ProposalArgsItem extends StatelessWidget {
-  ProposalArgsItem({this.label, this.content});
-
-  final Widget label;
-  final Widget content;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(8, 4, 4, 4),
-      padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
-      decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).dividerColor),
-          borderRadius: BorderRadius.all(Radius.circular(4))),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[label, content],
-            ),
-          )
-        ],
       ),
     );
   }

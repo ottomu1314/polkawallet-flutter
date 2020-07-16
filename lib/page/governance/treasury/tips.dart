@@ -24,10 +24,8 @@ class _ProposalsState extends State<MoneyTips> {
       new GlobalKey<RefreshIndicatorState>();
 
   Future<void> _fetchData() async {
+    webApi.gov.updateBestNumber();
     await webApi.gov.fetchTreasuryTips();
-    final int bestNumber =
-        await webApi.evalJavascript('api.derive.chain.bestNumber()');
-    widget.store.gov.setBestNumber(bestNumber);
   }
 
   @override

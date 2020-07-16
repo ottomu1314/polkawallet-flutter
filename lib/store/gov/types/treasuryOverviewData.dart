@@ -24,7 +24,71 @@ class SpendProposalData extends _SpendProposalData {
 abstract class _SpendProposalData {
   int id;
   bool isApproval;
+  List<CouncilMotionData> council;
   SpendProposalDetailData proposal;
+}
+
+@JsonSerializable()
+class CouncilMotionData extends _CouncilMotionData {
+  static CouncilMotionData fromJson(Map<String, dynamic> json) =>
+      _$CouncilMotionDataFromJson(json);
+}
+
+abstract class _CouncilMotionData {
+  String hash;
+  CouncilProposalData proposal;
+  CouncilProposalVotesData votes;
+}
+
+@JsonSerializable()
+class CouncilProposalData extends _CouncilProposalData {
+  static CouncilProposalData fromJson(Map<String, dynamic> json) =>
+      _$CouncilProposalDataFromJson(json);
+}
+
+abstract class _CouncilProposalData {
+  String callIndex;
+  String method;
+  String section;
+  List<dynamic> args;
+  ProposalMetaData meta;
+}
+
+@JsonSerializable()
+class ProposalMetaData extends _ProposalMetaData {
+  static ProposalMetaData fromJson(Map<String, dynamic> json) =>
+      _$ProposalMetaDataFromJson(json);
+}
+
+abstract class _ProposalMetaData {
+  String name;
+  String documentation;
+  List<ProposalArgsItemData> args;
+}
+
+@JsonSerializable()
+class ProposalArgsItemData extends _ProposalArgsItemData {
+  static ProposalArgsItemData fromJson(Map<String, dynamic> json) =>
+      _$ProposalArgsItemDataFromJson(json);
+}
+
+abstract class _ProposalArgsItemData {
+  String name;
+  String type;
+}
+
+@JsonSerializable()
+class CouncilProposalVotesData extends _CouncilProposalVotesData {
+  static CouncilProposalVotesData fromJson(Map<String, dynamic> json) =>
+      _$CouncilProposalVotesDataFromJson(json);
+}
+
+abstract class _CouncilProposalVotesData {
+  int index;
+  int threshold;
+  List<String> ayes;
+  List<String> nays;
+  int end;
 }
 
 @JsonSerializable()
@@ -36,6 +100,6 @@ class SpendProposalDetailData extends _SpendProposalDetailData {
 abstract class _SpendProposalDetailData {
   String proposer;
   String beneficiary;
-  int value;
-  int bond;
+  dynamic value;
+  dynamic bond;
 }

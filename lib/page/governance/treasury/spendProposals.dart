@@ -60,8 +60,10 @@ class _ProposalsState extends State<SpendProposals> {
     final Map dic = I18n.of(context).gov;
     return Observer(
       builder: (BuildContext context) {
-        final int decimals = widget.store.settings.networkState.tokenDecimals;
-        final String symbol = widget.store.settings.networkState.tokenSymbol;
+        final int decimals = widget.store.settings.networkState.tokenDecimals ??
+            kusama_token_decimals;
+        final String symbol =
+            widget.store.settings.networkState.tokenSymbol ?? '';
         String balance = Fmt.balance(
           widget.store.gov.treasuryOverview.balance,
           decimals: decimals,

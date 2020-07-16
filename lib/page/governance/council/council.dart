@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:polka_wallet/common/components/infoItem.dart';
 import 'package:polka_wallet/common/components/outlinedButtonSmall.dart';
+import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/page/governance/council/candidateDetailPage.dart';
 import 'package:polka_wallet/page/governance/council/councilVotePage.dart';
@@ -35,9 +36,8 @@ class _CouncilState extends State<Council> {
     if (store.settings.loading) {
       return;
     }
-    webApi.gov.fetchCouncilVotes();
+    await webApi.gov.fetchCouncilVotes();
     webApi.gov.fetchUserCouncilVote();
-    await webApi.gov.fetchCouncilInfo();
   }
 
   Future<void> _submitCancelVotes() async {
@@ -95,8 +95,9 @@ class _CouncilState extends State<Council> {
   }
 
   Widget _buildTopCard() {
-    final int decimals = store.settings.networkState.tokenDecimals;
-    final String symbol = store.settings.networkState.tokenSymbol;
+    final int decimals =
+        store.settings.networkState.tokenDecimals ?? kusama_token_decimals;
+    final String symbol = store.settings.networkState.tokenSymbol ?? '';
     final Map dic = I18n.of(context).gov;
 
     Map userVotes = store.gov.userCouncilVotes;

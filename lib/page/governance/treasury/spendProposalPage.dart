@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:polka_wallet/common/components/BorderedTitle.dart';
 import 'package:polka_wallet/common/components/JumpToBrowserLink.dart';
 import 'package:polka_wallet/common/components/addressIcon.dart';
 import 'package:polka_wallet/common/components/infoItem.dart';
 import 'package:polka_wallet/common/components/roundedButton.dart';
 import 'package:polka_wallet/common/components/roundedCard.dart';
+import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/account/txConfirmPage.dart';
 import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/service/substrateApi/types/genExternalLinksParams.dart';
@@ -28,18 +30,116 @@ class SpendProposalPage extends StatefulWidget {
 }
 
 class _SpendProposalPageState extends State<SpendProposalPage> {
-  Future<void> _onResolve(bool approve) async {
+  List _links;
+  String _proposalName;
+
+  Future<List> _getExternalLinks(int id) async {
+    if (_links != null) return _links;
+
+    final List res = await webApi.getExternalLinks(
+      GenExternalLinksParams.fromJson(
+          {'data': id.toString(), 'type': 'treasury'}),
+    );
+    if (res != null) {
+      setState(() {
+        _links = res;
+      });
+    }
+    return res;
+  }
+
+  Future<String> _getProposalName(String callIndex) async {
+    if (_proposalName != null) return _proposalName;
+
+    final String res =
+        await webApi.evalJavascript('gov.getCouncilProposalName("$callIndex")');
+    if (res != null) {
+      setState(() {
+        _proposalName = res;
+      });
+    }
+    return res;
+  }
+
+  Future<void> _showActions({bool isVote = false}) async {
+    var dic = I18n.of(context).gov;
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        message: Text(isVote ? dic['treasury.vote'] : dic['treasury.send']),
+        actions: <Widget>[
+          CupertinoActionSheetAction(
+            child: Text(dic['treasury.approve']),
+            onPressed: () {
+              Navigator.of(context).pop();
+              if (isVote) {
+                _onVote(true);
+              } else {
+                _onSendToCouncil(true);
+              }
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text(dic['treasury.reject']),
+            onPressed: () {
+              Navigator.of(context).pop();
+              if (isVote) {
+                _onVote(false);
+              } else {
+                _onSendToCouncil(false);
+              }
+            },
+          )
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text(I18n.of(context).home['cancel']),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onSendToCouncil(bool approve) async {
     var dic = I18n.of(context).gov;
     final SpendProposalData proposal =
         ModalRoute.of(context).settings.arguments;
+    final String txName =
+        'treasury.${approve ? 'approveProposal' : 'rejectProposal'}';
     var args = {
       "title": approve ? dic['treasury.approve'] : dic['treasury.reject'],
-      "txInfo": {
-        "module": 'treasury',
-        "call": approve ? 'approveProposal' : 'rejectProposal',
-      },
-      "detail": jsonEncode({"id": proposal.id}),
+      "txInfo": {"module": 'council', "call": 'propose', "txName": txName},
+      "detail": jsonEncode({"proposal": txName, "proposal_id": proposal.id}),
       "params": [proposal.id],
+      'onFinish': (BuildContext txPageContext, Map res) {
+        Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
+      }
+    };
+    Navigator.of(context).pushNamed(TxConfirmPage.route, arguments: args);
+  }
+
+  Future<void> _onVote(bool approve) async {
+    var dic = I18n.of(context).gov;
+    final SpendProposalData proposal =
+        ModalRoute.of(context).settings.arguments;
+    final CouncilMotionData councilProposal = proposal.council[0];
+    var args = {
+      "title": dic['treasury.vote'],
+      "txInfo": {
+        "module": 'council',
+        "call": 'vote',
+      },
+      "detail": jsonEncode({
+        "councilHash": councilProposal.hash,
+        "councilId": councilProposal.votes.index,
+        "voteValue": approve,
+      }),
+      "params": [
+        councilProposal.hash,
+        councilProposal.votes.index,
+        approve,
+      ],
       'onFinish': (BuildContext txPageContext, Map res) {
         Navigator.popUntil(txPageContext, ModalRoute.withName('/'));
       }
@@ -49,10 +149,10 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     final Map dic = I18n.of(context).gov;
-    final String symbol = widget.store.settings.networkState.tokenSymbol;
-    final int decimals = widget.store.settings.networkState.tokenDecimals;
+    final String symbol = widget.store.settings.networkState.tokenSymbol ?? '';
+    final int decimals = widget.store.settings.networkState.tokenDecimals ??
+        kusama_token_decimals;
     final SpendProposalData proposal =
         ModalRoute.of(context).settings.arguments;
     final AccountData proposer = AccountData();
@@ -63,13 +163,14 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
         widget.store.account.accountIndexMap[proposer.address];
     final Map accInfoBeneficiary =
         widget.store.account.accountIndexMap[beneficiary.address];
-    bool isCouncil = false;
+    bool isCouncil = !false;
     widget.store.gov.council.members.forEach((e) {
       if (widget.store.account.currentAddress == e[0]) {
         isCouncil = true;
       }
     });
     bool isApproval = proposal.isApproval ?? false;
+    bool hasProposals = proposal.council.length > 0;
     return Scaffold(
       appBar: AppBar(
         title: Text('${dic['treasury.proposal']} #${proposal.id}'),
@@ -118,93 +219,150 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
                         proposal.proposal.beneficiary, accInfoBeneficiary),
                     subtitle: Text(dic['treasury.beneficiary']),
                   ),
-                  FutureBuilder(
-                    future: webApi.getExternalLinks(
-                        GenExternalLinksParams.fromJson({
-                      'data': proposal.id.toString(),
-                      'type': 'treasury'
-                    })),
-                    builder: (_, AsyncSnapshot<List> snapshot) {
-                      if (snapshot.hasData) {
-                        final List links = snapshot.data;
-                        return Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(top: 16),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  JumpToBrowserLink(
-                                    links[0]['link'],
-                                    text: links[0]['name'],
-                                  ),
-                                  JumpToBrowserLink(
-                                    links[1]['link'],
-                                    text: links[1]['name'],
-                                  )
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  JumpToBrowserLink(
-                                    links[2]['link'],
-                                    text: links[2]['name'],
-                                  ),
-                                  JumpToBrowserLink(
-                                    links[3]['link'],
-                                    text: links[3]['name'],
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        );
-                      }
-                      return Container();
-                    },
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 16, right: 16),
-                    child: Divider(),
-                  ),
-                  !isApproval
+//                  FutureBuilder(
+//                    future: _getExternalLinks(proposal.id),
+//                    builder: (_, AsyncSnapshot<List> snapshot) {
+//                      if (snapshot.hasData) {
+//                        return ExternalLinks(snapshot.data);
+//                      }
+//                      return Container();
+//                    },
+//                  ),
+                  isApproval
+                      ? Container()
+                      : Padding(
+                          padding: EdgeInsets.only(left: 16, right: 16),
+                          child: Divider(),
+                        ),
+                  isApproval
                       ? Container()
                       : Padding(
                           padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: RoundedButton(
-                                  color: Colors.orange,
-                                  text: dic['treasury.reject'],
+                          child: !hasProposals
+                              ? RoundedButton(
+                                  text: dic['treasury.send'],
+                                  onPressed:
+                                      isCouncil ? () => _showActions() : null,
+                                )
+                              : RoundedButton(
+                                  text: dic['treasury.vote'],
                                   onPressed: isCouncil
-                                      ? () => _onResolve(false)
+                                      ? () => _showActions(isVote: true)
                                       : null,
                                 ),
-                              ),
-                              Container(width: 16),
-                              Expanded(
-                                child: RoundedButton(
-                                  color: Colors.orange,
-                                  text: dic['treasury.approve'],
-                                  onPressed:
-                                      isCouncil ? () => _onResolve(true) : null,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
+                        ),
                 ],
               ),
             ),
+            !hasProposals
+                ? Container()
+                : ProposalVotingList(
+                    store: widget.store,
+                    council: proposal.council[0],
+                  )
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ExternalLinks extends StatelessWidget {
+  ExternalLinks(this.links);
+
+  final List links;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              JumpToBrowserLink(
+                links[0]['link'],
+                text: links[0]['name'],
+              ),
+              JumpToBrowserLink(
+                links[1]['link'],
+                text: links[1]['name'],
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              JumpToBrowserLink(
+                links[2]['link'],
+                text: links[2]['name'],
+              ),
+              JumpToBrowserLink(
+                links[3]['link'],
+                text: links[3]['name'],
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class ProposalVotingList extends StatelessWidget {
+  ProposalVotingList({this.store, this.council});
+
+  final AppStore store;
+  final CouncilMotionData council;
+
+  @override
+  Widget build(BuildContext context) {
+    final Map dic = I18n.of(context).gov;
+    final int voteCount = council.votes.ayes.length + council.votes.nays.length;
+    return Container(
+      padding: EdgeInsets.only(bottom: 24),
+      margin: EdgeInsets.only(top: 8),
+      color: Theme.of(context).cardColor,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: BorderedTitle(
+                title: '${dic['vote.voter']}'
+                    '($voteCount/${council.votes.threshold})'),
+          ),
+          Column(
+            children: council.votes.ayes.map((e) {
+              final Map accInfo = store.account.accountIndexMap[e];
+              return ListTile(
+                leading: AddressIcon(e),
+                title: Fmt.accountDisplayName(e, accInfo),
+                trailing: Text(
+                  dic['yes'],
+                  style: Theme.of(context).textTheme.headline4,
+                ),
+              );
+            }).toList(),
+          ),
+          Column(
+            children: council.votes.nays.map((e) {
+              final Map accInfo = store.account.accountIndexMap[e];
+              return ListTile(
+                leading: AddressIcon(e),
+                title: Fmt.accountDisplayName(e, accInfo),
+                trailing: Text(
+                  dic['no'],
+                  style: Theme.of(context).textTheme.headline4,
+                ),
+              );
+            }).toList(),
+          )
+        ],
       ),
     );
   }

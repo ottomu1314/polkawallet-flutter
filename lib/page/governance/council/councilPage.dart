@@ -4,6 +4,7 @@ import 'package:polka_wallet/common/components/topTaps.dart';
 import 'package:polka_wallet/common/consts/settings.dart';
 import 'package:polka_wallet/page/governance/council/council.dart';
 import 'package:polka_wallet/page/governance/council/motions.dart';
+import 'package:polka_wallet/service/substrateApi/api.dart';
 import 'package:polka_wallet/store/app.dart';
 import 'package:polka_wallet/utils/i18n/index.dart';
 
@@ -20,6 +21,18 @@ class CouncilPage extends StatefulWidget {
 
 class _GovernanceState extends State<CouncilPage> {
   int _tab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.store.settings.loading) {
+        return;
+      }
+      webApi.gov.fetchCouncilInfo();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

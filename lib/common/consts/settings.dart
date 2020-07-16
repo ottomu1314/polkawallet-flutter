@@ -18,7 +18,8 @@ EndpointData networkEndpointKusama = EndpointData.fromJson(const {
   'info': network_name_kusama,
   'ss58': 2,
   'text': 'Kusama (Polkadot Canary, hosted by Polkawallet)',
-  'value': 'ws://mandala-01.acala.network:9954/',
+//  'value': 'ws://mandala-01.acala.network:9954/',
+  'value': 'ws://10.230.199.40:9944/',
 });
 
 EndpointData networkEndpointAcala = EndpointData.fromJson(const {
@@ -54,20 +55,18 @@ List<EndpointData> networkEndpoints = [
     'value': 'ws://62.171.154.98:9944',
   }),
   networkEndpointKusama,
-  EndpointData.fromJson(const {
-    'color': 'black',
-    'info': network_name_kusama,
-    'ss58': 2,
-    'text': 'Kusama (Polkadot Canary, hosted by Parity)',
-    'value': 'wss://kusama-rpc.polkadot.io/',
-  }),
-  EndpointData.fromJson(const {
-    'color': 'black',
-    'info': network_name_kusama,
-    'ss58': 2,
-    'text': 'Kusama (Polkadot Canary, hosted by Web3 Foundation)',
-    'value': 'wss://cc3-5.kusama.network/',
-  }),
+//  EndpointData.fromJson(const {
+//    'info': 'kusama',
+//    'ss58': 2,
+//    'text': 'Kusama (Polkadot Canary, hosted by Parity)',
+//    'value': 'wss://kusama-rpc.polkadot.io/',
+//  }),
+//  EndpointData.fromJson(const {
+//    'info': 'kusama',
+//    'ss58': 2,
+//    'text': 'Kusama (Polkadot Canary, hosted by Web3 Foundation)',
+//    'value': 'wss://cc3-5.kusama.network/',
+//  }),
   networkEndpointAcala,
   EndpointData.fromJson(const {
     'color': 'indigo',
@@ -102,6 +101,7 @@ const network_ss58_map = {
 };
 
 const int acala_token_decimals = 18;
+const int kusama_token_decimals = 12;
 
 const int SECONDS_OF_DAY = 24 * 60 * 60; // seconds of one day
 const int SECONDS_OF_YEAR = 365 * 24 * 60 * 60; // seconds of one year
