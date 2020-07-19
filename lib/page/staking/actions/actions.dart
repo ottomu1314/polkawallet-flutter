@@ -128,6 +128,7 @@ class _StakingActions extends State<StakingActions>
 
     String controllerId = store.staking.ledger['controllerId'] ??
         store.staking.ledger['accountId'];
+    bool isController = controllerId == store.staking.ledger['accountId'];
     String payee = store.staking.ledger['rewardDestination'];
     String stashId = store.staking.ledger['stashId'] ?? controllerId;
     if (hasData) {
@@ -224,7 +225,7 @@ class _StakingActions extends State<StakingActions>
           StakingInfoPanel(
             hasData: hasData,
             isStash: isStash,
-            controllerEqualStash: controllerEqualStash,
+            isController: isController,
             bonded: bonded,
             unlocking: unlocking,
             redeemable: redeemable,
@@ -437,7 +438,7 @@ class StakingInfoPanel extends StatelessWidget {
   StakingInfoPanel({
     this.hasData,
     this.isStash,
-    this.controllerEqualStash,
+    this.isController,
     this.bonded,
     this.unlocking,
     this.redeemable,
@@ -448,7 +449,7 @@ class StakingInfoPanel extends StatelessWidget {
 
   final bool hasData;
   final bool isStash;
-  final bool controllerEqualStash;
+  final bool isController;
   final BigInt bonded;
   final BigInt unlocking;
   final BigInt redeemable;
@@ -490,7 +491,7 @@ class StakingInfoPanel extends StatelessWidget {
                           Fmt.token(redeemable),
                           style: Theme.of(context).textTheme.headline4,
                         ),
-                        !isStash && redeemable > BigInt.zero
+                        isController && redeemable > BigInt.zero
                             ? GestureDetector(
                                 child: Container(
                                   padding: EdgeInsets.only(left: 4),
