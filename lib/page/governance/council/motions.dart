@@ -51,7 +51,7 @@ class _MotionsState extends State<Motions> {
                       padding: EdgeInsets.only(top: 16, bottom: 16),
                       child: ListTile(
                         title: Text(e.proposal.meta.name),
-                        subtitle: Text(e.proposal.meta.documentation),
+                        subtitle: Text(e.proposal.meta.documentation.trim()),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
@@ -69,7 +69,7 @@ class _MotionsState extends State<Motions> {
                       ),
                     );
                   }).toList()
-                : ListTail(isEmpty: true, isLoading: false),
+                : [ListTail(isEmpty: true, isLoading: false)],
           ),
         );
       },

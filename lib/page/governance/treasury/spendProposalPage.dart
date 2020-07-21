@@ -62,14 +62,20 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
   }
 
   Future<void> _showActions({bool isVote = false}) async {
-    var dic = I18n.of(context).gov;
+    final dic = I18n.of(context).gov;
+    final SpendProposalData proposal =
+        ModalRoute.of(context).settings.arguments;
+    final CouncilProposalData proposalData = proposal.council[0].proposal;
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
-        message: Text(isVote ? dic['treasury.vote'] : dic['treasury.send']),
+        title: Text(isVote ? dic['treasury.vote'] : dic['treasury.send']),
+        message: isVote
+            ? Text('${proposalData.section}.${proposalData.method}()')
+            : Container(),
         actions: <Widget>[
           CupertinoActionSheetAction(
-            child: Text(dic['treasury.approve']),
+            child: Text(isVote ? dic['yes.text'] : dic['treasury.approve']),
             onPressed: () {
               Navigator.of(context).pop();
               if (isVote) {
@@ -80,7 +86,7 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
             },
           ),
           CupertinoActionSheetAction(
-            child: Text(dic['treasury.reject']),
+            child: Text(isVote ? dic['no.text'] : dic['treasury.reject']),
             onPressed: () {
               Navigator.of(context).pop();
               if (isVote) {
@@ -169,8 +175,18 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
         isCouncil = true;
       }
     });
-    bool isApproval = proposal.isApproval ?? false;
-    bool hasProposals = proposal.council.length > 0;
+    final bool isApproval = proposal.isApproval ?? false;
+    final bool hasProposals = proposal.council.length > 0;
+    bool isVoted = false;
+    if (hasProposals) {
+      final List votesAll = proposal.council[0].votes.ayes.toList();
+      votesAll.addAll(proposal.council[0].votes.nays);
+      votesAll.forEach((e) {
+        if (e == widget.store.account.currentAddress) {
+          isVoted = true;
+        }
+      });
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text('${dic['treasury.proposal']} #${proposal.id}'),
@@ -245,8 +261,10 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
                                       isCouncil ? () => _showActions() : null,
                                 )
                               : RoundedButton(
-                                  text: dic['treasury.vote'],
-                                  onPressed: isCouncil
+                                  text: !isVoted
+                                      ? dic['treasury.vote']
+                                      : dic['voted'],
+                                  onPressed: isCouncil && !isVoted
                                       ? () => _showActions(isVote: true)
                                       : null,
                                 ),

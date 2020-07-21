@@ -32,7 +32,7 @@ class _SubmitProposalPageState extends State<SubmitProposalPage> {
   Future<void> _onSubmit() async {
     if (_formKey.currentState.validate()) {
       var dic = I18n.of(context).gov;
-      int decimals = widget.store.settings.networkState.tokenDecimals;
+      int decimals = widget.store.settings.networkState.tokenDecimals ?? 12;
       String amt = _amountCtrl.text.trim();
       String address = Fmt.addressOfAccount(_beneficiary, widget.store);
       var args = {

@@ -20,6 +20,23 @@ class MotionDetailPage extends StatefulWidget {
 }
 
 class _MotionDetailPageState extends State<MotionDetailPage> {
+  SpendProposalDetailData _treasuryProposal;
+
+  Future<SpendProposalDetailData> _fetchTreasuryProposal(String id) async {
+    if (_treasuryProposal != null) return _treasuryProposal;
+
+    final Map data =
+        await webApi.evalJavascript('api.query.treasury.proposals($id)');
+    if (data != null) {
+      final SpendProposalDetailData proposal =
+          SpendProposalDetailData.fromJson(data);
+      setState(() {
+        _treasuryProposal = proposal;
+      });
+    }
+    return _treasuryProposal;
+  }
+
   @override
   Widget build(BuildContext context) {
     final Map dic = I18n.of(context).gov;
@@ -31,7 +48,13 @@ class _MotionDetailPageState extends State<MotionDetailPage> {
           blockTime =
               widget.store.settings.networkConst['babe']['expectedBlockTime'];
         }
+        List<List<String>> params = [];
+        motion.proposal.meta.args.asMap().forEach((k, v) {
+          params.add(
+              ['${v.name}: ${v.type}', motion.proposal.args[k].toString()]);
+        });
         bool isTreasury = motion.proposal.section == 'treasury';
+        bool isExternal = motion.proposal.section == 'democracy';
         return Scaffold(
           appBar: AppBar(
             title: Text(dic['council.motion']),
@@ -53,7 +76,39 @@ class _MotionDetailPageState extends State<MotionDetailPage> {
                       Text(motion.proposal.meta.documentation.trim()),
                       Divider(),
                       Text('params'),
-                      ProposalArgsList(motion.proposal),
+                      ProposalArgsList(params),
+                      isTreasury
+                          ? FutureBuilder(
+                              future: _fetchTreasuryProposal(
+                                  motion.proposal.args[0]),
+                              builder: (_,
+                                  AsyncSnapshot<SpendProposalDetailData>
+                                      snapshot) {
+                                return snapshot.hasData
+                                    ? ProposalArgsItem(
+                                        label: Text('rpop'),
+                                        content: Text('xx'),
+                                      )
+                                    : CupertinoActivityIndicator();
+                              },
+                            )
+                          : Container(),
+                      isExternal
+                          ? FutureBuilder(
+                              future: _fetchTreasuryProposal(
+                                  motion.proposal.args[0]),
+                              builder: (_,
+                                  AsyncSnapshot<SpendProposalDetailData>
+                                      snapshot) {
+                                return snapshot.hasData
+                                    ? ProposalArgsItem(
+                                        label: Text('rpop'),
+                                        content: Text('xx'),
+                                      )
+                                    : CupertinoActivityIndicator();
+                              },
+                            )
+                          : Container(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -92,38 +147,12 @@ class _MotionDetailPageState extends State<MotionDetailPage> {
 }
 
 class ProposalArgsList extends StatelessWidget {
-  ProposalArgsList(this.proposal);
+  ProposalArgsList(this.args);
 
-  final CouncilProposalData proposal;
+  final List<List<String>> args;
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> items = [];
-    proposal.meta.args.asMap().forEach((k, v) {
-      items.add(Container(
-        margin: EdgeInsets.fromLTRB(8, 4, 4, 4),
-        padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
-        decoration: BoxDecoration(
-            border: Border.all(color: Theme.of(context).dividerColor),
-            borderRadius: BorderRadius.all(Radius.circular(4))),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('${v.name}: ${v.type}'),
-                  Text(
-                    proposal.args[k].toString(),
-                    style: Theme.of(context).textTheme.headline4,
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-      ));
-    });
     return Container(
       margin: EdgeInsets.only(top: 8, bottom: 8),
       decoration: BoxDecoration(
@@ -131,7 +160,43 @@ class ProposalArgsList extends StatelessWidget {
               left:
                   BorderSide(color: Theme.of(context).dividerColor, width: 3))),
       child: Column(
-        children: items,
+        children: args.map((e) {
+          return ProposalArgsItem(
+            label: Text(e[0]),
+            content: Text(
+              e[1],
+              style: Theme.of(context).textTheme.headline4,
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class ProposalArgsItem extends StatelessWidget {
+  ProposalArgsItem({this.label, this.content});
+
+  final Widget label;
+  final Widget content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(8, 4, 4, 4),
+      padding: EdgeInsets.fromLTRB(8, 4, 8, 4),
+      decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).dividerColor),
+          borderRadius: BorderRadius.all(Radius.circular(4))),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[label, content],
+            ),
+          )
+        ],
       ),
     );
   }

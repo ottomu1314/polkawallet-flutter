@@ -53,7 +53,10 @@ class ApiGovernance {
   }
 
   Future<Map> fetchTreasuryOverview() async {
-    Map data = await apiRoot.evalJavascript('gov.getTreasuryOverview()');
+    Map data = await apiRoot.evalJavascript(
+      'gov.getTreasuryOverview()',
+      allowRepeat: true,
+    );
 
     const Map<String, dynamic> treasuryProposal33 = {
       "proposer": "DfyDF9aumWDoF6FhUEsw6LJVvCfv3eCV8EnM3zunEkoiwSG",
