@@ -18,8 +18,8 @@ EndpointData networkEndpointKusama = EndpointData.fromJson(const {
   'info': network_name_kusama,
   'ss58': 2,
   'text': 'Kusama (Polkadot Canary, hosted by Polkawallet)',
-//  'value': 'ws://mandala-01.acala.network:9954/',
-  'value': 'ws://10.230.198.143:9944/',
+  'value': 'ws://mandala-01.acala.network:9954/',
+//  'value': 'ws://10.230.198.143:9944/',
 });
 
 EndpointData networkEndpointAcala = EndpointData.fromJson(const {
@@ -55,18 +55,27 @@ List<EndpointData> networkEndpoints = [
     'value': 'ws://62.171.154.98:9944',
   }),
   networkEndpointKusama,
-//  EndpointData.fromJson(const {
-//    'info': 'kusama',
-//    'ss58': 2,
-//    'text': 'Kusama (Polkadot Canary, hosted by Parity)',
-//    'value': 'wss://kusama-rpc.polkadot.io/',
-//  }),
-//  EndpointData.fromJson(const {
-//    'info': 'kusama',
-//    'ss58': 2,
-//    'text': 'Kusama (Polkadot Canary, hosted by Web3 Foundation)',
-//    'value': 'wss://cc3-5.kusama.network/',
-//  }),
+  EndpointData.fromJson(const {
+    'color': 'black',
+    'info': network_name_kusama,
+    'ss58': 2,
+    'text': 'Kusama (Polkadot Canary, hosted by Parity)',
+    'value': 'wss://kusama-rpc.polkadot.io/',
+  }),
+  EndpointData.fromJson(const {
+    'color': 'black',
+    'info': network_name_kusama,
+    'ss58': 2,
+    'text': 'Kusama (Polkadot Canary, hosted by Web3 Foundation)',
+    'value': 'wss://cc3-5.kusama.network/',
+  }),
+  EndpointData.fromJson(const {
+    'color': 'black',
+    'info': network_name_kusama,
+    'ss58': 2,
+    'text': 'Kusama (Polkadot Canary, user-run public nodes)',
+    'value': 'wss://kusama.polkadot.cloud.ava.do/',
+  }),
   networkEndpointAcala,
   EndpointData.fromJson(const {
     'color': 'indigo',

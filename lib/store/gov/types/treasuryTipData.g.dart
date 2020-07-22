@@ -12,9 +12,8 @@ TreasuryTipData _$TreasuryTipDataFromJson(Map<String, dynamic> json) {
     ..reason = json['reason'] as String
     ..who = json['who'] as String
     ..closes = json['closes'] as int
-    ..finder = json['finder'] == null
-        ? null
-        : TreasuryTipItemData.fromJson(json['finder'] as Map<String, dynamic>)
+    ..finder = json['finder'] as String
+    ..deposit = json['deposit']
     ..tips = (json['tips'] as List)
         ?.map((e) => e == null
             ? null
@@ -29,6 +28,7 @@ Map<String, dynamic> _$TreasuryTipDataToJson(TreasuryTipData instance) =>
       'who': instance.who,
       'closes': instance.closes,
       'finder': instance.finder,
+      'deposit': instance.deposit,
       'tips': instance.tips,
     };
 

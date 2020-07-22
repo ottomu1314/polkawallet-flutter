@@ -1,5 +1,6 @@
 import 'package:mobx/mobx.dart';
 import 'package:polka_wallet/store/app.dart';
+import 'package:polka_wallet/store/gov/types/proposalInfoData.dart';
 import 'package:polka_wallet/store/gov/types/referendumInfoData.dart';
 import 'package:polka_wallet/store/gov/types/councilInfoData.dart';
 import 'package:polka_wallet/store/gov/types/treasuryOverviewData.dart';
@@ -44,6 +45,9 @@ abstract class _GovernanceStore with Store {
   ObservableList<ReferendumInfo> referendums;
 
   @observable
+  List<ProposalInfoData> proposals = [];
+
+  @observable
   TreasuryOverviewData treasuryOverview = TreasuryOverviewData();
 
   @observable
@@ -79,6 +83,13 @@ abstract class _GovernanceStore with Store {
   void setReferendums(List ls) {
     referendums = ObservableList.of(ls.map((i) => ReferendumInfo.fromJson(
         i as Map<String, dynamic>, rootStore.account.currentAddress)));
+  }
+
+  @action
+  void setProposals(List ls) {
+    proposals = ls
+        .map((i) => ProposalInfoData.fromJson(Map<String, dynamic>.of(i)))
+        .toList();
   }
 
   @action

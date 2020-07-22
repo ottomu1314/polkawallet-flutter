@@ -17,6 +17,25 @@ void main() {
     test('gov store created', () {
       expect(store.cacheCouncilKey, 'council');
     });
+    test('set proposals properly', () {
+      final List proposals = [proposal0, proposal1];
+      store.setProposals(proposals);
+      expect(store.proposals.length, proposals.length);
+      expect(store.proposals[0].index, proposal0['index']);
+      expect(store.proposals[0].balance, proposal0['balance']);
+      expect(store.proposals[0].proposer, proposal0['proposer']);
+      expect(store.proposals[0].imageHash, proposal0['imageHash']);
+      expect(store.proposals[0].seconds[0], proposal0['seconds'][0]);
+      expect(store.proposals[0].image.at, proposal0['image']['at']);
+      expect(store.proposals[0].image.balance, proposal0['image']['balance']);
+      expect(store.proposals[0].image.proposer, proposal0['image']['proposer']);
+      expect(store.proposals[0].image.proposal.section,
+          proposal0['image']['proposal']['section']);
+      expect(store.proposals[0].image.proposal.method,
+          proposal0['image']['proposal']['method']);
+      expect(store.proposals[0].image.proposal.args[0],
+          proposal0['image']['proposal']['args'][0]);
+    });
     test('set treasury overview properly', () {
       store.setTreasuryOverview(treasuryOverview);
       expect(store.treasuryOverview.balance, treasuryBalance);
@@ -62,9 +81,8 @@ void main() {
       expect(store.treasuryTips[0].hash, tip0x58['hash']);
       expect(store.treasuryTips[0].who, tip0x58['who']);
       expect(store.treasuryTips[0].reason, tip0x58['reason']);
-      expect(
-          store.treasuryTips[0].finder.address, tip0x58['finder']['address']);
-      expect(store.treasuryTips[0].finder.value, tip0x58['finder']['value']);
+      expect(store.treasuryTips[0].finder, tip0x58['finder']);
+      expect(store.treasuryTips[0].deposit, tip0x58['deposit']);
       expect(
           store.treasuryTips[0].tips.length, List.of(tip0x58['tips']).length);
       expect(store.treasuryTips[0].tips[0].value,

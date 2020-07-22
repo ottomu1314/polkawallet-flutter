@@ -13,7 +13,8 @@ abstract class _TreasuryTipData {
   String reason;
   String who;
   int closes;
-  TreasuryTipItemData finder;
+  String finder;
+  dynamic deposit;
   List<TreasuryTipItemData> tips;
 }
 

@@ -85,10 +85,8 @@ const Map<String, dynamic> tip0x58 = {
   "reason":
       "Translation into Russian - https://twitter.com/block_25/status/1277561502954852352",
   "who": "EGX4yJNtThEW9axmM3qB262Z7VVuYuXfWRKvujSxiDJmHy7",
-  "finder": {
-    "address": "EGX4yJNtThEW9axmM3qB262Z7VVuYuXfWRKvujSxiDJmHy7",
-    "value": 303333333278
-  },
+  "finder": "EGX4yJNtThEW9axmM3qB262Z7VVuYuXfWRKvujSxiDJmHy7",
+  "deposit": 303333333278,
   "closes": null,
   "tips": [
     {"address": "DTLcUu92NoQw4gg6VmNgXeYQiNywDhfYMQBPYg2Y1W6AkJF", "value": 0},
@@ -159,3 +157,63 @@ const List<Map<String, dynamic>> councilMotions = [
     }
   }
 ];
+
+const Map<String, dynamic> proposal0 = {
+  "balance": "0x0000000000000000002386f26fc10000",
+  "seconds": ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"],
+  "image": {
+    "at": 2114,
+    "balance": 3000000000000,
+    "proposal": {
+      "args": ["10"],
+      "callIndex": "0x1002",
+      "method": "approveProposal",
+      "section": "treasury",
+      "meta": {
+        "name": "approve_proposal",
+        "args": [
+          {"name": "proposal_id", "type": "Compact<ProposalIndex>"}
+        ],
+        "documentation":
+            " Approve a proposal. At a later time, the proposal will be allocated to the beneficiary and the original deposit will be returned."
+      }
+    },
+    "proposer": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+  },
+  "imageHash":
+      "0x7343bdf358c714b172c64107029b3305396c2e55fd60ac11476032e4bc9d9676",
+  "index": 0,
+  "proposer": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+};
+const Map<String, dynamic> proposal1 = {
+  "balance": "0x0000000000000000002386f26fc10000",
+  "seconds": [
+    "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+    "5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty"
+  ],
+  "image": {
+    "at": 4414,
+    "balance": 34000000000000,
+    "proposal": {
+      "args": [
+        "0xb6ec618cb7aaa78ab73d6f91935cc8ab477532742d0eaa4b4e5d8a067b87b963"
+      ],
+      "callIndex": "0x0904",
+      "method": "externalPropose",
+      "section": "democracy",
+      "meta": {
+        "name": "external_propose",
+        "args": [
+          {"name": "proposal_hash", "type": "Hash"}
+        ],
+        "documentation":
+            " Schedule a referendum to be tabled once it is legal to schedule an external referendum."
+      }
+    },
+    "proposer": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+  },
+  "imageHash":
+      "0x45565d4c6e75dc437ca69978ac88c3ede8e9d5c9293d1d8214d2aab65d6d77b6",
+  "index": 1,
+  "proposer": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+};

@@ -65,14 +65,17 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
     final dic = I18n.of(context).gov;
     final SpendProposalData proposal =
         ModalRoute.of(context).settings.arguments;
-    final CouncilProposalData proposalData = proposal.council[0].proposal;
+    CouncilProposalData proposalData = CouncilProposalData();
+    if (isVote) {
+      proposalData = proposal.council[0].proposal;
+    }
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         title: Text(isVote ? dic['treasury.vote'] : dic['treasury.send']),
         message: isVote
             ? Text('${proposalData.section}.${proposalData.method}()')
-            : Container(),
+            : null,
         actions: <Widget>[
           CupertinoActionSheetAction(
             child: Text(isVote ? dic['yes.text'] : dic['treasury.approve']),
@@ -235,15 +238,15 @@ class _SpendProposalPageState extends State<SpendProposalPage> {
                         proposal.proposal.beneficiary, accInfoBeneficiary),
                     subtitle: Text(dic['treasury.beneficiary']),
                   ),
-//                  FutureBuilder(
-//                    future: _getExternalLinks(proposal.id),
-//                    builder: (_, AsyncSnapshot<List> snapshot) {
-//                      if (snapshot.hasData) {
-//                        return ExternalLinks(snapshot.data);
-//                      }
-//                      return Container();
-//                    },
-//                  ),
+                  FutureBuilder(
+                    future: _getExternalLinks(proposal.id),
+                    builder: (_, AsyncSnapshot<List> snapshot) {
+                      if (snapshot.hasData) {
+                        return ExternalLinks(snapshot.data);
+                      }
+                      return Container();
+                    },
+                  ),
                   isApproval
                       ? Container()
                       : Padding(

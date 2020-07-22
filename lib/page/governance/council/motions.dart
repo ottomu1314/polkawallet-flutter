@@ -50,7 +50,8 @@ class _MotionsState extends State<Motions> {
                       margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
                       padding: EdgeInsets.only(top: 16, bottom: 16),
                       child: ListTile(
-                        title: Text(e.proposal.meta.name),
+                        title: Text(
+                            '#${e.votes.index} ${e.proposal.section}.${e.proposal.method}'),
                         subtitle: Text(e.proposal.meta.documentation.trim()),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,

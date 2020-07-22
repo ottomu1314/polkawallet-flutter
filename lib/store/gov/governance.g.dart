@@ -117,6 +117,21 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
     });
   }
 
+  final _$proposalsAtom = Atom(name: '_GovernanceStore.proposals');
+
+  @override
+  List<ProposalInfoData> get proposals {
+    _$proposalsAtom.reportRead();
+    return super.proposals;
+  }
+
+  @override
+  set proposals(List<ProposalInfoData> value) {
+    _$proposalsAtom.reportWrite(value, super.proposals, () {
+      super.proposals = value;
+    });
+  }
+
   final _$treasuryOverviewAtom =
       Atom(name: '_GovernanceStore.treasuryOverview');
 
@@ -214,6 +229,17 @@ mixin _$GovernanceStore on _GovernanceStore, Store {
   }
 
   @override
+  void setProposals(List<dynamic> ls) {
+    final _$actionInfo = _$_GovernanceStoreActionController.startAction(
+        name: '_GovernanceStore.setProposals');
+    try {
+      return super.setProposals(ls);
+    } finally {
+      _$_GovernanceStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setTreasuryOverview(Map<dynamic, dynamic> data) {
     final _$actionInfo = _$_GovernanceStoreActionController.startAction(
         name: '_GovernanceStore.setTreasuryOverview');
@@ -256,6 +282,7 @@ councilMotions: ${councilMotions},
 councilVotes: ${councilVotes},
 userCouncilVotes: ${userCouncilVotes},
 referendums: ${referendums},
+proposals: ${proposals},
 treasuryOverview: ${treasuryOverview},
 treasuryTips: ${treasuryTips}
     ''';

@@ -192,7 +192,7 @@ class _TipDetailPageState extends State<TipDetailPage> {
     final Map accInfo = widget.store.account.accountIndexMap[who.address];
     Map accInfoFinder;
     if (tipData.finder != null) {
-      finder.address = tipData.finder.address;
+      finder.address = tipData.finder;
       accInfoFinder = widget.store.account.accountIndexMap[finder.address];
     }
     bool isFinder = false;
@@ -239,7 +239,7 @@ class _TipDetailPageState extends State<TipDetailPage> {
                                 children: <Widget>[
                                   Text(
                                     '${Fmt.balance(
-                                      tipData.finder.value.toString(),
+                                      tipData.deposit.toString(),
                                       decimals: decimals,
                                     )} $symbol',
                                     style:
